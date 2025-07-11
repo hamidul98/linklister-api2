@@ -7,7 +7,6 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   if (req.method === "OPTIONS") {
-    // CORS preflight
     return res.status(200).end();
   }
 
@@ -17,14 +16,15 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { name, email, apiKey } = req.body;
+    // ✅ Extract all expected fields from body
+    const { name, email, apiKey, pages, internalLinks, brokenLinks } = req.body;
 
-    // Validate presence of required fields
-    if (!name || !email || !apiKey) {
-      return res.status(400).json({ error: "Missing required fields" });
+    // ✅ Validate required fields
+    if (!name || !email || !apiKey || pages == null || internalLinks == null || brokenLinks == null) {
+      return res.status(400).json({ error: "Missing required fields (name, email, apiKey, pages, internalLinks, brokenLinks)" });
     }
 
-    // Example list of valid API keys
+    // ✅ Valid API keys
     const validKeys = [
       "ll_trial_user_api_key_x123",
       "ll_premium_user_api_key_abc456",
@@ -37,11 +37,15 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: "Invalid API key" });
     }
 
-    // Log success
-    console.log("✅ Data received:", { name, email });
+    // ✅ Log everything
+    console.log("✅ Data received:", { name, email, pages, internalLinks, brokenLinks });
 
-    // Respond success
-    return res.status(200).json({ message: "Data uploaded successfully" });
+    // ✅ Respond with all the data
+    return res.status(200).json({
+      message: "Data uploaded successfully",
+      data: { name, email, pages, internalLinks, brokenLinks }
+    });
+
   } catch (error) {
     console.error("❌ Server error:", error);
     return res.status(500).json({ error: "Internal server error" });
